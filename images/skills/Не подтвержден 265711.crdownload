@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>What is asynchronous code execution?</title>
+  <meta name="description" content="Tutorials and explanations by Marie Chatfield. Follow along with workshops, or proceed at your own pace.
+">
+
+  <link rel="stylesheet" href="/tutorials/css/main.css">
+  <link rel="canonical" href="http://mariechatfield.com/tutorials/explanations/asynchronous-code.html">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/tutorials/">tutorials by marie</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post explanation">
+
+  <header class="post-header">
+    <h1 class="post-title">Explanation: What is asynchronous code execution?</h1>
+    <p class="post-meta"></p>
+  </header>
+
+  <article class="post-content">
+    <p>Code is a series of instructions, which are run one at a time in sequential order. During normal code execution, an instruction in one function might call out to another function.</p>
+
+<p>At this point, the instructions in the other function begin running and the original code is put aside for a moment.</p>
+
+<p>When the other function is done, it returns to our original code with some return value. Our original code resumes its execution and can do something with that return value. We refer to this as <strong>synchronous</strong> execution.</p>
+
+<p><img src="/tutorials/assets/async/diagram_async_01.png" alt="Synchronous Diagram" /></p>
+
+<p>However, some code operates outside the normal code execution. We refer to this as <strong>asynchronous</strong> execution, and it introduces the possibility for chaos into our otherwise orderly system. This is because the instructions of asynchronous code generally run at the same time as (and totally separate from) the instructions of the rest of our code. This code is doing things in its own happy world, and may (or may not) eventually return with a result.</p>
+
+<p>For example, we might be running some Javascript on our website that needs some data from a server. We call a function that sends a request to the server to get that data.</p>
+
+<p>This request is sent on our behalf, but it takes some time to get all the way there and back. In the meantime, the rest of our Javascript keeps running.</p>
+
+<p>At some point, the request will complete and will return our data. But there’s no way to get this data back to our original code.</p>
+
+<p><img src="/tutorials/assets/async/diagram_async_02.png" alt="Asynchronous Diagram" /></p>
+
+<p>Instead of trying to get the data back to the original code to do something with it, we tell the asynchronous function what to do when it completes.</p>
+
+<p><img src="/tutorials/assets/async/diagram_async_03.png" alt="Asynchronous Diagram with Callback" /></p>
+
+<p>In Javascript, this usually looks like passing a callback function as an argument.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">do_something_cool</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">original_function</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// You can define a function inline.</span>
+    <span class="nx">other_function</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">result</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// this is called by function_that_does_something_asynchronous</span>
+        <span class="nx">do_something_cool</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+    <span class="p">});</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">original_function</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// You can also pass a function by reference.</span>
+    <span class="c1">// This will do the exact same thing as the example above.</span>
+    <span class="nx">other_function</span><span class="p">(</span><span class="nx">do_something_cool</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="kd">var</span> <span class="nx">original_function</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// But this would not work. Don't do this.</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">other_function</span><span class="p">();</span>
+    <span class="nx">do_something_cool</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>The documentation for an asynchronous function should tell you what types of data you can expect your callback function to receive, if you choose to provide a callback.</p>
+
+  </article>
+
+</div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">tutorials by marie</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-3">
+        <ul class="social-media-list">
+        
+          <li>
+            <a href="http://mariechatfield.com">
+              <span class="fa fa-link"></span>
+              <span class="username">mariechatfield.com</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://github.com/mchat">
+              <span class="fa fa-github"></span>
+              <span class="username">mchat</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/mariechatfield">
+              <span class="fa fa-twitter"></span>
+              <span class="username">mariechatfield</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Tutorials and explanations by Marie Chatfield. Follow along with workshops, or proceed at your own pace.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+    <script>
+  var anchorForId = function (id) {
+    var wrapper = document.createElement("span");
+    wrapper.innerHTML = "&nbsp";
+
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">(Permalink)</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+
+    wrapper.prepend(anchor);
+    return wrapper;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.prepend(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("tutorial")[0] || document.getElementsByClassName("explanation")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-54073560-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </body>
+
+</html>
